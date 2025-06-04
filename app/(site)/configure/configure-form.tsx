@@ -24,8 +24,6 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Loader2, Pin } from "lucide-react";
-import AwareIFYLogo from "@/public/awareify-logo.jpg";
-import Image from "next/image";
 import PinLocationPicker from "../../../components/pin-location-picker";
 import { LocationInfo } from "../../../components/pin-location-picker";
 import { useState } from "react";

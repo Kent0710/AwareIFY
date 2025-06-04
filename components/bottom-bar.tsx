@@ -152,7 +152,7 @@ const Menu = () => {
         },
     ];
 
-    const [username, setUsername] = useState("");
+    const username = useState('');
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
