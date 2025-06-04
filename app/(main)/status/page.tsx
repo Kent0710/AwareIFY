@@ -93,7 +93,7 @@ export default function StatusPage() {
                         <CardTitle>Current Status Summary</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <p className="font-semibold">Flood Height</p>
                                 <p className="text-neutral-500">
@@ -200,7 +200,7 @@ export default function StatusPage() {
             </SectionWrapper>
 
             <SectionWrapper title="Visualizers" className="mb-6">
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <WindVisualizer status={status} setStatus={setStatus} />
                     <FloodHeightVisualizer
                         status={status}
@@ -210,7 +210,7 @@ export default function StatusPage() {
                 </div>
             </SectionWrapper>
             <SectionWrapper title="Personalized">
-                <div className="grid grid-cols-3 grid-rows-2 gap-6">
+                <div className="grid grid-cols-1  lg:grid-cols-3 grid-rows-2 gap-6">
                     <PersonalizedStatusCard
                         title="Modality"
                         firstOption={{

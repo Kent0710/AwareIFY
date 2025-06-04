@@ -74,8 +74,8 @@ export default async function InstitutionPage({
                         accounts={accounts}
                     />
                 </ResizablePanel>
-                <ResizableHandle />
-                <ResizablePanel>
+                <ResizableHandle className="h-20 bg-neutral-200" withHandle />
+                <ResizablePanel minSize={30} maxSize={70}>
                     <Drawer
                         institution={institution}
                         institutionCurrentWeather={institutionCurrentWeather}

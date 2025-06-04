@@ -89,85 +89,109 @@ const AccountTab: React.FC<AccountTabProps> = ({ account }) => {
             value={account.id}
             className="grid grid-cols-4 gap-6 max-h-[calc(100vh-12rem)]"
         >
-            <AccountTabContentWrapper className="col-span-1">
-                <p className="font-semibold"> Student </p>
-                <section className="flex items-center space-x-3">
-                    <User />
+            <div className="col-span-4 grid grid-cols-1 grid-rows-3 gap-6 lg:grid-cols-4 lg:grid-rows-1">
+                <AccountTabContentWrapper className="col-span-4 row-span-1 lg:col-span-1">
+                    <p className="font-semibold"> Student </p>
+                    <section className="flex items-center space-x-3">
+                        <User />
 
-                    <div>
-                        <h4 className="font-semibold text-lg">
-                            {" "}
-                            {account.username}{" "}
-                        </h4>
-                        <small className="text-neutral-500">
-                            {account.place_name}
+                        <div>
+                            <h4 className="font-semibold text-lg">
+                                {" "}
+                                {account.username}{" "}
+                            </h4>
+                            <small className="text-neutral-500">
+                                {account.place_name}
+                            </small>
+                        </div>
+                    </section>
+                </AccountTabContentWrapper>
+
+                <AccountTabContentWrapper className="col-span-4 row-span-1 lg:col-span-1">
+                    <div className="flex justify-between items-center">
+                        <p className="font-semibold">Current Weather</p>
+                        <small className="text-neutral-500 font-semibold">
+                            {formatTo12HourTime(
+                                accountCurrentWeather.currentTime
+                            )}
                         </small>
                     </div>
-                </section>
-            </AccountTabContentWrapper>
 
-            <AccountTabContentWrapper className="col-span-1">
-                <div className="flex justify-between items-center">
-                    <p className="font-semibold">Current Weather</p>
-                    <small className="text-neutral-500 font-semibold">
-                        {formatTo12HourTime(accountCurrentWeather.currentTime)}
-                    </small>
-                </div>
+                    <p>
+                        {
+                            accountCurrentWeather.weatherCondition.description
+                                .text
+                        }
+                    </p>
 
-                <p>{accountCurrentWeather.weatherCondition.description.text}</p>
+                    <section className="flex items-center space-x-3">
+                        <Image
+                            src={
+                                accountCurrentWeather.weatherCondition
+                                    .iconBaseUri
+                            }
+                            alt="weather-icon"
+                            width={100}
+                            height={100}
+                            className="w-20 h-auto object-contain"
+                        />
+                        <div>
+                            <h4 className="font-semibold text-lg">
+                                {" "}
+                                {
+                                    accountCurrentWeather.temperature.degrees
+                                } °C{" "}
+                            </h4>
+                            <small className="text-neutral-500">
+                                Feels like:{" "}
+                                {
+                                    accountCurrentWeather.feelsLikeTemperature
+                                        .degrees
+                                }{" "}
+                                °C
+                            </small>
+                        </div>
+                    </section>
 
-                <section className="flex items-center space-x-3">
-                    <Image
-                        src={accountCurrentWeather.weatherCondition.iconBaseUri}
-                        alt="weather-icon"
-                    />
-                    <div>
-                        <h4 className="font-semibold text-lg">
-                            {" "}
-                            {accountCurrentWeather.temperature.degrees} °C{" "}
-                        </h4>
-                        <small className="text-neutral-500">
-                            Feels like:{" "}
-                            {accountCurrentWeather.feelsLikeTemperature.degrees}{" "}
-                            °C
-                        </small>
-                    </div>
-                </section>
+                    <Alert>
+                        <Info />
+                        <AlertTitle>Friendly alert</AlertTitle>
+                        <AlertDescription>
+                            Sleepy roads and heavy winds! Be careful.
+                        </AlertDescription>
+                    </Alert>
+                </AccountTabContentWrapper>
 
-                <Alert>
-                    <Info />
-                    <AlertTitle>Friendly alert</AlertTitle>
-                    <AlertDescription>
-                        Sleepy roads and heavy winds! Be careful.
-                    </AlertDescription>
-                </Alert>
-            </AccountTabContentWrapper>
+                <AccountTabContentWrapper className="col-span-4 row-span-1 lg:col-span-2">
+                    <p className="font-semibold"> AI Status Summary </p>
 
-            <AccountTabContentWrapper className="col-span-2">
-                <p className="font-semibold"> AI Status Summary </p>
+                    <section className="grid grid-cols-3">
+                        <div className="col-span-1 flex flex-col items-center justify-center">
+                            <h4 className="text-lg font-semibold">
+                                {" "}
+                                Evacuated!{" "}
+                            </h4>
+                            <small className="text-neutral-500">
+                                Need more support!{" "}
+                            </small>
+                            <Button> Open chat </Button>
+                        </div>
+                        <div className="col-span-2">
+                            <p>
+                                {" "}
+                                Lorem ipsum dolor, sit amet consectetur
+                                adipisicing elit. Laborum atque ut modi quasi
+                                similique nostrum, nulla alias quaerat
+                                repudiandae necessitatibus dolorum soluta
+                                deleniti eum ipsa ratione corrupti. Quos, unde
+                                aliquid.{" "}
+                            </p>
+                        </div>
+                    </section>
+                </AccountTabContentWrapper>
+            </div>
 
-                <section className="grid grid-cols-3">
-                    <div className="col-span-1 flex flex-col items-center justify-center">
-                        <h4 className="text-lg font-semibold"> Evacuated! </h4>
-                        <small className="text-neutral-500">
-                            Need more support!{" "}
-                        </small>
-                        <Button> Open chat </Button>
-                    </div>
-                    <div className="col-span-2">
-                        <p>
-                            {" "}
-                            Lorem ipsum dolor, sit amet consectetur adipisicing
-                            elit. Laborum atque ut modi quasi similique nostrum,
-                            nulla alias quaerat repudiandae necessitatibus
-                            dolorum soluta deleniti eum ipsa ratione corrupti.
-                            Quos, unde aliquid.{" "}
-                        </p>
-                    </div>
-                </section>
-            </AccountTabContentWrapper>
-
-            <div className="col-span-4 grid grid-cols-2 gap-6 mt-[4rem">
+            <div className="col-span-4 grid grid-cols-1 lg:grid-cols-2 gap-6 ">
                 <ForecastLineChart
                     forecast={accountHourlyForecast}
                     className="w-full h-[15rem]"

@@ -15,8 +15,8 @@ export default function ClientLayoutWrapper({
     if (isMobile) {
         // 📱 Mobile layout (no grid, stacked vertically)
         return (
-            <div className="flex flex-col h-screen">
-                <div className="flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
+            <div className="flex flex-col h-screen overflow-y-hidden">
+                <div className="flex-1 overflow-y-auto  overflow-x-hidden">{children}</div>
                 <BottomBar />
                 <Toaster />
             </div>

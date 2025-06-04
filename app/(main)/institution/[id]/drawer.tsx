@@ -52,7 +52,7 @@ const Drawer: React.FC<DrawerProps> = ({
 
     return (
         <Tabs defaultValue="school" className="h-full overflow-y-auto p-4">
-            <TabsList className="fixed">
+            <TabsList className="fixed z-50">
                 <TabsTrigger value="school">School</TabsTrigger>
                 {selectedAccounts.map((account) => (
                     <div key={account.id} className="flex items-center">

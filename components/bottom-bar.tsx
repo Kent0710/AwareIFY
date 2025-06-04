@@ -8,7 +8,7 @@ import {  useMemo, useState } from "react";
 import { CgMenuRight } from "react-icons/cg";
 import Link from "next/link";
 import { useIsMobileStore } from "@/store/useIsMobileStore";
-import { Loader2, LogOut, User } from "lucide-react";
+import { Loader2, Lock, LogOut, ShieldQuestion, User } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
 import {
@@ -42,14 +42,14 @@ const BottomBar = () => {
                 href: "/home",
             },
             {
-                icon: TicketCheck,
-                text: "Checkouts",
-                href: "/checkouts",
+                icon: ShieldQuestion,
+                text: "Status",
+                href: "/status",
             },
             {
-                icon: PiShoppingCartSimple,
-                text: "Products",
-                href: "/product",
+                icon: Lock,
+                text: "Admin",
+                href: "/admin",
             },
             {
                 icon: PiStorefrontLight,

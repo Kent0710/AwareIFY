@@ -63,7 +63,7 @@ export default async function AdminInstitutionPage({
     return (
         <PageWrapper>
             <SectionWrapper title="Institution Details" className="mb-6">
-                <div className="grid grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                     {formattedInstitutionDetails.map((detail) => (
                         <AdminInstitutionCard
                             key={detail.title}
