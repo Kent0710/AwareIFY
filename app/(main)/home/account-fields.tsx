@@ -5,14 +5,20 @@ import { Label } from "@/components/ui/label";
 import { AccountType } from "@/object-types";
 
 interface AccountFieldProps {
-    account : AccountType;
+    account: AccountType;
 }
-const AccountFields : React.FC<AccountFieldProps> = async ({
-    account
-}) => {
+const AccountFields: React.FC<AccountFieldProps> = async ({ account }) => {
     return (
         <SectionWrapper title="Your Account">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+                <div>
+                    <Label htmlFor="username"> Username </Label>
+                    <Input
+                        name="username"
+                        disabled
+                        placeholder={account.username}
+                    />
+                </div>
                 <div>
                     <Label htmlFor="longitude"> Longitude </Label>
                     <Input

@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Settings, LogOut, ShieldQuestion, Lock, Code } from "lucide-react";
+import { Home, Settings, LogOut, ShieldQuestion, Lock } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
@@ -33,12 +33,6 @@ const Sidebar = () => {
                 label : 'Admin',
                 active : pathname.includes('/admin'),
                 href : '/admin',
-            },
-            {
-                icon : Code,
-                label : '/Dev',
-                active : pathname.includes('/dev'),
-                href : '/dev'
             },
             {
                 icon: Settings,

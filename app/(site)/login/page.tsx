@@ -62,7 +62,7 @@ export default function LoginPage() {
             <Header />
 
             <div className="flex justify-center items-center flex-col h-[80dvh]  ">
-                <div className="w-full px-[1rem] h-fit">
+                <div className="w-full px-[1rem] h-fit lg:w-[40%]">
                     <Form {...form}>
                         <h2 className="text-xl font-semibold text-center">
                             {authType === "login"

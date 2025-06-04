@@ -8,7 +8,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { getCurrentWeather } from "@/actions/getCurrentWeather";
 import { getHourlyWeatherForecast } from "@/actions/getHourlyWeatherForecast";
 import { getDailyWeatherForecast } from "@/actions/getDailyWeatherForecast";
-import { CloudRain, Cloudy, Droplet, Info, Wind } from "lucide-react";
+import { CloudRain, Cloudy, Droplet, Info, Loader2, Wind } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { GoogleApiResponse } from "@/actions/getCurrentWeather";
 import { formatTo12HourTime } from "@/lib/utils";
@@ -18,17 +18,11 @@ import { DailyForecastLineChart } from "./daily-forecast-line-chart";
 import { GoogleDailyForecastResponse } from "@/actions/getDailyWeatherForecast";
 import { AnnouncementCarousel } from "../../home/announcement-carousel";
 import { AnnouncementType } from "@/object-types";
-
-const dummyStatus = [
-    { count: 0, text: "Safe" },
-    { count: 0, text: "Unsafe" },
-    { count: 0, text: "Pending" },
-    { count: 0, text: "Ready" },
-    { count: 0, text: "Evacuated" },
-];
-
+import { getInstitutionStatusSummary } from "@/actions/getInstitutionSummary";
+import getInstitutionById from "@/actions/getInstitutionById";
 interface SchoolTabProps {
     institution: {
+        id: string;
         institution_name: string;
         place_name: string;
         longitude: number;
@@ -41,21 +35,62 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
     institution,
     announcements,
 }) => {
-    const { longitude, latitude } = institution;
+    const {
+        id: institutionId,
+        longitude,
+        latitude,
+        institution_name,
+        place_name,
+    } = institution;
     const [institutionCurrentWeather, setInstitutionCurrentWeather] =
         useState<GoogleApiResponse | null>(null);
     const [institutionHourlyForecast, setInstitutionHourlyForecast] =
         useState<GoogleHourlyForecastResponse | null>(null);
     const [institutionDailyForecast, setInstitutionDailyForecast] =
         useState<GoogleDailyForecastResponse | null>(null);
+    const [statusSummary, setStatusSummary] = useState<{
+        safe: number;
+        unsafe: number;
+        pending: number;
+        evacuated: number;
+        ready: number;
+        modality: string | null;
+        transportation: string | null;
+    } | null>(null);
+    const [totalStakeholders, setTotalStakeholders] = useState<number>(0);
 
     useEffect(() => {
-        // Check if latitude and longitude are valid numbers
-        if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
-            return;
-        }
+        // Fetch institution data and accounts
+        const fetchInstitutionData = async () => {
+            const result = await getInstitutionById(institutionId);
+            if (result.success && result.accounts) {
+                setTotalStakeholders(result.accounts.length);
+            }
+        };
 
+        // Fetch status summary
+        const fetchStatusSummary = async () => {
+            const result = await getInstitutionStatusSummary(institutionId);
+            if (result.success && result.statusCounts) {
+                setStatusSummary({
+                    ...result.statusCounts,
+                    modality: result.modality,
+                    transportation: result.transportation,
+                });
+            }
+        };
+
+        // Fetch weather data
         const fetchWeatherData = async () => {
+            if (
+                !latitude ||
+                !longitude ||
+                isNaN(latitude) ||
+                isNaN(longitude)
+            ) {
+                return;
+            }
+
             try {
                 const [currentWeather, hourlyForecast, dailyForecast] =
                     await Promise.all([
@@ -72,19 +107,68 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
             }
         };
 
+        fetchInstitutionData();
+        fetchStatusSummary();
         fetchWeatherData();
-    }, [latitude, longitude]); // Empty dependency array ensures it runs only once on mount
+    }, [institutionId, latitude, longitude]);
 
-    if (!institutionCurrentWeather && !institutionHourlyForecast) {
+    // Calculate derived metrics
+    const unsafeProportion =
+        totalStakeholders > 0
+            ? (statusSummary?.unsafe || 0) / totalStakeholders
+            : 0;
+    const evacuatedProportion =
+        totalStakeholders > 0
+            ? (statusSummary?.evacuated || 0) / totalStakeholders
+            : 0;
+
+    const alertLevel =
+        (institutionCurrentWeather?.precipitation.probability.percent || 0) >
+            80 ||
+        (institutionCurrentWeather?.wind.speed.value || 0) > 60 ||
+        (institutionCurrentWeather?.thunderstormProbability || 0) > 60
+            ? "High"
+            : (institutionCurrentWeather?.precipitation.probability.percent ||
+                  0) > 50 ||
+              (institutionCurrentWeather?.wind.speed.value || 0) >
+                  40 ||
+              (institutionCurrentWeather?.thunderstormProbability || 0) > 40
+            ? "Moderate"
+            : "Low";
+
+    const isHighVulnerability =
+        unsafeProportion > 0.4 || evacuatedProportion > 0.3;
+
+    const statusData = statusSummary
+        ? [
+              { count: statusSummary.safe, text: "Safe" },
+              { count: statusSummary.unsafe, text: "Unsafe" },
+              { count: statusSummary.pending, text: "Pending" },
+              { count: statusSummary.ready, text: "Ready" },
+              { count: statusSummary.evacuated, text: "Evacuated" },
+          ]
+        : [
+              { count: 0, text: "Safe" },
+              { count: 0, text: "Unsafe" },
+              { count: 0, text: "Pending" },
+              { count: 0, text: "Ready" },
+              { count: 0, text: "Evacuated" },
+          ];
+
+    if (
+        !institutionCurrentWeather &&
+        !institutionHourlyForecast &&
+        !statusSummary
+    ) {
         return (
             <TabsContent
                 value="school"
                 className="flex items-center justify-center"
             >
-                <p>
-                    No weather data for this institution. Please ensure location
-                    data is set.
-                </p>
+                <div className="flex gap-3 items-center">
+                    <Loader2 className="animate-spin" />
+                    Getting weather data for institution...
+                </div>
             </TabsContent>
         );
     }
@@ -98,8 +182,8 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                 <AnnouncementCarousel announcements={announcements} />
             </SchoolTabContentWrapper>
 
-            <div className="col-span-4 grid grid-cols-1 lg:grid-rows-1 lg:grid-cols-4 gap-6">
-                <SchoolTabContentWrapper className="col-span-4 lg:col-span-1 h-fit">
+            <div className="col-span-4 grid grid-cols-1 lg:grid-rows-1 lg:grid-cols-4 gap-6 h-full bg-blue-500">
+                <SchoolTabContentWrapper className="col-span-4 lg:col-span-1 h-full">
                     <p className="font-semibold">School</p>
                     <section className="flex items-center space-x-3">
                         <Image
@@ -109,31 +193,30 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                         />
                         <div>
                             <h4 className="font-semibold text-lg">
-                                {institution.institution_name}
+                                {institution_name}
                             </h4>
                             <small className="text-neutral-500">
-                                {institution.place_name}
+                                {place_name}
                             </small>
                         </div>
                     </section>
 
                     <ul className="flex flex-wrap gap-3 mt-3">
                         <li>
-                            <Badge>1 stakeholders</Badge>
+                            <Badge>{totalStakeholders} stakeholders</Badge>
                         </li>
                         <li>
-                            <Badge>Suspension Recommended</Badge>
+                            <Badge>Alert Level: {alertLevel}</Badge>
                         </li>
-                        <li>
-                            <Badge>Alert Level</Badge>
-                        </li>
-                        <li>
-                            <Badge>High Vulnerability</Badge>
-                        </li>
+                        {isHighVulnerability && (
+                            <li>
+                                <Badge>High Vulnerability</Badge>
+                            </li>
+                        )}
                     </ul>
                 </SchoolTabContentWrapper>
 
-                <SchoolTabContentWrapper className="col-span-4 lg:col-span-1 h-fit">
+                <SchoolTabContentWrapper className="col-span-4 lg:col-span-1">
                     <div className="flex justify-between items-center">
                         <p className="font-semibold">Current Weather</p>
                         <small className="text-neutral-500 font-semibold">
@@ -227,11 +310,11 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                     </Alert>
                 </SchoolTabContentWrapper>
 
-                <SchoolTabContentWrapper className="col-span-2 h-fit">
+                <SchoolTabContentWrapper className="col-span-2 h-full">
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="font-semibold">
-                                {institution.institution_name} Status Summary
+                                {institution_name} Status Summary
                             </p>
                             <small>
                                 {institutionCurrentWeather?.currentTime
@@ -247,7 +330,7 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                     </div>
 
                     <ul className="grid grid-cols-3 gap-3 grid-rows-2 mt-3">
-                        {dummyStatus.map((status) => (
+                        {statusData.map((status) => (
                             <StatusCard
                                 count={status.count}
                                 text={status.text}
@@ -257,12 +340,25 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                     </ul>
 
                     <ul className="flex space-x-3 mt-3">
-                        <li>
-                            <Badge>Onsite modality</Badge>
-                        </li>
-                        <li>
-                            <Badge>Most commute</Badge>
-                        </li>
+                        {statusSummary?.modality && (
+                            <li>
+                                <Badge>
+                                    {statusSummary.modality === "online"
+                                        ? "Online modality"
+                                        : "Onsite modality"}
+                                </Badge>
+                            </li>
+                        )}
+                        {statusSummary?.transportation && (
+                            <li>
+                                <Badge>
+                                    Most{" "}
+                                    {statusSummary.transportation === "commute"
+                                        ? "commute"
+                                        : "own car"}
+                                </Badge>
+                            </li>
+                        )}
                     </ul>
                 </SchoolTabContentWrapper>
             </div>

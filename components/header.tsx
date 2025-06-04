@@ -24,14 +24,14 @@ const MobileHeader = () => {
                 />
                 <h1> AwareIFY </h1>
             </span>
-            <Button variant={'special'}>Acces research</Button>
+            <Button variant={"special"}>Access research</Button>
         </header>
     );
 };
 
 const DesktopHeader = () => {
     return (
-        <header className="py-6 flex items-center justify-between px-[6rem]">
+        <header className="py-6 flex items-center justify-between px-[1rem] lg:px-[6rem]">
             <section className="flex items-center space-x-12">
                 <span className="flex items-center space-x-3">
                     <Image
@@ -51,10 +51,7 @@ const DesktopHeader = () => {
                 </ul>
             </section>
 
-            <section className="space-x-3">
-                <Button variant={"special"}> Access research </Button>
-                <Button> Get started </Button>
-            </section>
+            <Button variant={"special"}> Access research </Button>
         </header>
     );
 };

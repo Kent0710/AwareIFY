@@ -19,7 +19,7 @@ export default async function AdminPage() {
 
     return (
         <PageWrapper>
-            <SectionWrapper title="Registerd Institutions as Admin">
+            <SectionWrapper title="Registered Institutions as Admin">
                 <div className="flex space-x-3 mb-3">
                     <JoinInstitution />
                     <CreateInstitution />
