@@ -310,7 +310,7 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                     </Alert>
                 </SchoolTabContentWrapper>
 
-                <SchoolTabContentWrapper className="col-span-4 h-full">
+                <SchoolTabContentWrapper className="col-span-4 lg:col-span-2 h-full">
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="font-semibold">
