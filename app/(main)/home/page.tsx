@@ -12,6 +12,7 @@ export default async function HomePage() {
 
     if (!isConfigured) {
         redirect("/configure");
+        return;
     }
 
     return (
