@@ -12,7 +12,7 @@ const AccountFields : React.FC<AccountFieldProps> = async ({
 }) => {
     return (
         <SectionWrapper title="Your Account">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                 <div>
                     <Label htmlFor="longitude"> Longitude </Label>
                     <Input

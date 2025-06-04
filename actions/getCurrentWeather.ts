@@ -125,7 +125,7 @@ export async function getCurrentWeather(
 
         if (!response.ok) {
             throw new Error(
-                `Failed to fetch weather: ${response.status} ${response.statusText}`
+                `Failed to fetch weather: ${response.status} ${response.statusText} ${response.text()}`
             );
         }
 

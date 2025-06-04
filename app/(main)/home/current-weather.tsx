@@ -42,7 +42,7 @@ const CurrentWeather: React.FC<CurrentWeatherProps> = async ({ account }) => {
 
     return (
         <SectionWrapper title="Your Weather Status">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
                 {/* Current Weather */}
                 <div className="col-span-1 rounded-xl border bg-card text-card-foreground shadow px-6 py-4">
                     <div className="flex justify-between items-center">

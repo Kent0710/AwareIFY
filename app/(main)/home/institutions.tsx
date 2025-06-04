@@ -15,7 +15,7 @@ const Institutions = async () => {
                 <CreateInstitution />
             </div>
 
-            <ul className="grid grid-cols-5 gap-3 ">
+            <ul className="grid grid-cols-3 lg:grid-cols-5 gap-3 ">
                 {institutions.length > 0 && success ? (
                     institutions.map((institution) => (
                         <li
@@ -32,7 +32,7 @@ const Institutions = async () => {
                         </li>
                     ))
                 ) : (
-                    <p> No institution </p>
+                    <p className="font-semibold text-neutral-500 whitespace-nowrap"> No institution </p>
                 )}
             </ul>
         </HomeSectionWrapper>

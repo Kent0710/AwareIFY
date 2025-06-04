@@ -72,18 +72,9 @@ const ConfigureForm = () => {
     };
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-screen">
-            <section className="flex justify-center items-center flex-col space-y-6 p-10 mb-10">
-                <div className="flex items-center space-x-3">
-                    <Image
-                        src={AwareIFYLogo}
-                        alt="awareifylogo"
-                        className="w-14 h-auto object-contain"
-                    />
-                    <h1 className="font-extrabold"> AwareIFY </h1>
-                </div>
-
-                <h2 className="text-7xl font-semibold text-center">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-[80dvh]">
+            <section className="flex justify-center items-center flex-col space-y-6 p-10 lg:mb-10">
+                <h2 className="text-5xl lg:text-7xl font-semibold text-center">
                     Let us configure your account.
                 </h2>
                 <p className="secondary-text text-center">

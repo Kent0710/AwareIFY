@@ -14,17 +14,17 @@ import { AnnouncementType } from "@/object-types";
 
 interface DrawerProps {
     institution: {
-        institution_name : string;
-        place_name : string;
-        longitude : number;
-        latitude : number;
-        code : string;
-        safe : number;
-        unsafe : number;
-        pending : number;
+        institution_name: string;
+        place_name: string;
+        longitude: number;
+        latitude: number;
+        code: string;
+        safe: number;
+        unsafe: number;
+        pending: number;
         evacuated: number;
-        ready : number;
-        id : string;
+        ready: number;
+        id: string;
     };
     institutionCurrentWeather: GoogleApiResponse | null;
     institutionHourlyForecast: GoogleHourlyForecastResponse | null;
@@ -33,9 +33,6 @@ interface DrawerProps {
 
 const Drawer: React.FC<DrawerProps> = ({
     institution,
-    institutionCurrentWeather,
-    institutionHourlyForecast,
-    institutionDailyForecast,
 }) => {
     const { selectedAccounts, removeSelectedAccount } =
         useSelectedAccountsStore();
@@ -48,20 +45,19 @@ const Drawer: React.FC<DrawerProps> = ({
         async function getAnnouncementsHandler() {
             const { announcements } = await getAnnouncement(institution.id);
             setAnnouncements(announcements);
-        };
+        }
 
         getAnnouncementsHandler();
     }, [institution.id]);
 
     return (
-        <Tabs defaultValue="account" className="h-full overflow-y-auto p-4">
-            <TabsList className="fixed" defaultValue={"school"}>
+        <Tabs defaultValue="school" className="h-full overflow-y-auto p-4">
+            <TabsList className="fixed">
                 <TabsTrigger value="school">School</TabsTrigger>
                 {selectedAccounts.map((account) => (
                     <div key={account.id} className="flex items-center">
                         <TabsTrigger value={account.id}>
-                            {" "}
-                            {account.username}{" "}
+                            {account.username}
                         </TabsTrigger>
                         <X
                             onClick={() => {
@@ -75,9 +71,6 @@ const Drawer: React.FC<DrawerProps> = ({
 
             <SchoolTab
                 institution={institution}
-                institutionCurrentWeather={institutionCurrentWeather}
-                institutionHourlyForecast={institutionHourlyForecast}
-                institutionDailyForecast={institutionDailyForecast}
                 announcements={announcements}
             />
 

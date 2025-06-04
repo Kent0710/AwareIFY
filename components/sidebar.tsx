@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Settings, LogOut, ShieldQuestion, Lock } from "lucide-react";
+import { Home, Settings, LogOut, ShieldQuestion, Lock, Code } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
@@ -9,6 +9,7 @@ import AwareIFYLogo from "@/public/awareify-logo.jpg";
 import Image from "next/image";
 import { signout } from "@/actions/login";
 import { toast } from "sonner";
+import { useIsMobileStore } from "@/store/useIsMobileStore";
 
 const Sidebar = () => {
     const pathname = usePathname();
@@ -34,6 +35,12 @@ const Sidebar = () => {
                 href : '/admin',
             },
             {
+                icon : Code,
+                label : '/Dev',
+                active : pathname.includes('/dev'),
+                href : '/dev'
+            },
+            {
                 icon: Settings,
                 label: "Settings",
                 active: pathname === "/settings",
@@ -42,6 +49,9 @@ const Sidebar = () => {
         ],
         [pathname]
     );
+
+    const isMobile = useIsMobileStore();
+    if (isMobile) return;
 
     return (
         <div className="w-[5rem] border-r h-screen flex flex-col items-center py-3 bg-secondary text-neutral-600">
