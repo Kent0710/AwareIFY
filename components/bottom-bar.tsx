@@ -2,7 +2,7 @@
 
 import { GoHome } from "react-icons/go";
 import { IconType } from "react-icons/lib";
-import {  useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CgMenuRight } from "react-icons/cg";
 import Link from "next/link";
 import { useIsMobileStore } from "@/store/useIsMobileStore";
@@ -22,8 +22,8 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Bookmark, Heart, TicketCheck } from "lucide-react";
-import { Info, FileText, Shield, Mail } from "lucide-react";
+import { toast } from "sonner";
+import { signout } from "@/actions/login";
 
 const BottomBar = () => {
     const isMobile = useIsMobileStore();
@@ -108,44 +108,7 @@ const BottomBarIcon: React.FC<BottomBarIconProps> = ({ icon: Icon }) => {
 const Menu = () => {
     const [open, setOpen] = useState(false);
 
-    const infoRoutes = [
-        { label: "About", icon: <Info className="w-5 h-5" />, href: "/about" },
-        {
-            label: "Terms",
-            icon: <FileText className="w-5 h-5" />,
-            href: "/terms",
-        },
-        {
-            label: "Privacy",
-            icon: <Shield className="w-5 h-5" />,
-            href: "/privacy",
-        },
-        {
-            label: "Contact",
-            icon: <Mail className="w-5 h-5" />,
-            href: "/contact",
-        },
-    ];
-
-    const mainRoutes = [
-        {
-            label: "Orders",
-            icon: <TicketCheck className="w-5 h-5" />,
-            href: "/checkouts",
-        },
-        {
-            label: "Liked products",
-            icon: <Heart className="w-5 h-5" />,
-            href: "/likes",
-        },
-        {
-            label: "Bookmarked shops",
-            icon: <Bookmark className="w-5 h-5" />,
-            href: "/bookmarks",
-        },
-    ];
-
-    const username = '';
+    const username = "";
 
     return (
         <Sheet open={open} onOpenChange={setOpen}>
@@ -158,9 +121,7 @@ const Menu = () => {
 
             <SheetContent className="rounded-l-3xl p-1 text-sm">
                 <SheetHeader>
-                    <SheetTitle className="font-extrabold bg-gradient-to-tl from-blue-500 to-yellow-500 bg-clip-text text-transparent text-xl">
-                        AllInOneMarket
-                    </SheetTitle>
+                    <SheetTitle>AwareIFY</SheetTitle>
                 </SheetHeader>
 
                 <main className="px-[2rem] space-y-6 text-neutral-600">
@@ -191,16 +152,6 @@ const Menu = () => {
                                                     My account
                                                 </Link>
                                             </li>
-                                            <li>
-                                                <Link
-                                                    href={"/admin"}
-                                                    onClick={() =>
-                                                        setOpen(false)
-                                                    }
-                                                >
-                                                    Admin Shop
-                                                </Link>
-                                            </li>
                                         </ul>
                                     </nav>
                                 </AccordionContent>
@@ -208,48 +159,16 @@ const Menu = () => {
                         </Accordion>
                     </section>
 
-                    <section className="border-b-1 pb-6">
-                        <nav>
-                            <ul className="space-y-6">
-                                {mainRoutes.map(({ label, icon, href }) => (
-                                    <li key={label}>
-                                        <Link
-                                            href={href}
-                                            className="flex items-center gap-3"
-                                            onClick={() => setOpen(false)}
-                                        >
-                                            {icon}
-                                            {label}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </nav>
-                    </section>
-
-                    <section className="border-b-1 pb-6">
-                        <nav>
-                            <ul className="space-y-6">
-                                {infoRoutes.map(({ label, icon, href }) => (
-                                    <li key={label}>
-                                        <Link
-                                            href={href}
-                                            className="flex items-center gap-3"
-                                            onClick={() => setOpen(false)}
-                                        >
-                                            {icon}
-                                            {label}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </nav>
-                    </section>
-
-                    <section className="flex items-center gap-3 text-red-500">
-                        <LogOut />
-                        Log out
-                    </section>
+                    <button
+                        className="flex flex-col items-center mt-6"
+                        onClick={async () => {
+                            toast.loading("Signing out...", { duration: 2000 });
+                            await signout();
+                        }}
+                    >
+                        <LogOut size={20} />
+                        <small>Logout</small>
+                    </button>
                 </main>
             </SheetContent>
         </Sheet>
