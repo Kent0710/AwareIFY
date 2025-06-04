@@ -160,7 +160,7 @@ const Menu = () => {
                     </section>
 
                     <button
-                        className="flex flex-col items-center mt-6"
+                        className="flex items-center mt-6"
                         onClick={async () => {
                             toast.loading("Signing out...", { duration: 2000 });
                             await signout();
