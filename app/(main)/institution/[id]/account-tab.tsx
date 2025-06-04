@@ -13,7 +13,6 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 import { Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
     getHourlyWeatherForecast,
     GoogleHourlyForecastResponse,
@@ -25,12 +24,21 @@ import {
 import { ForecastLineChart } from "./hourly-forecast-line-chart";
 import { DailyForecastLineChart } from "./daily-forecast-line-chart";
 import Image from "next/image";
+import { generateAIStatusSummary } from "@/actions/generateAIStatusSummary";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface AccountTabProps {
     account: AccountType;
+    institutionId : string;
 }
 
-const AccountTab: React.FC<AccountTabProps> = ({ account }) => {
+const AccountTab: React.FC<AccountTabProps> = ({ account, institutionId }) => {
+    const [aiStatusSummary, setAIStatusSummary] = useState<{
+        headline: string;
+        supportMessage: string;
+        description: string;
+    } | null>(null);
     const [accountCurrentWeather, setAccountCurrentWeather] =
         useState<GoogleApiResponse | null>(null);
     const [accountHourlyForecast, setAccountHourlyForecast] =
@@ -49,20 +57,24 @@ const AccountTab: React.FC<AccountTabProps> = ({ account }) => {
                 longitude,
                 latitude
             );
-
             const googleHourlyForecast = await getHourlyWeatherForecast(
                 longitude,
                 latitude
             );
-
             const googleDailyForecast = await getDailyWeatherForecast(
                 longitude,
                 latitude
+            );
+            const aiSummary = await generateAIStatusSummary(
+                googleCurrentWeather,
+                googleHourlyForecast,
+                googleDailyForecast
             );
 
             setAccountCurrentWeather(googleCurrentWeather);
             setAccountHourlyForecast(googleHourlyForecast);
             setAccountDailyForecast(googleDailyForecast);
+            setAIStatusSummary(aiSummary);
         }
 
         getAccountCurrentWeatherHandler();
@@ -71,7 +83,8 @@ const AccountTab: React.FC<AccountTabProps> = ({ account }) => {
     if (
         !accountCurrentWeather ||
         !accountHourlyForecast ||
-        !accountDailyForecast
+        !accountDailyForecast ||
+        !aiStatusSummary
     ) {
         return (
             <TabsContent
@@ -105,6 +118,9 @@ const AccountTab: React.FC<AccountTabProps> = ({ account }) => {
                             </small>
                         </div>
                     </section>
+                    <Link href={`/admin/${institutionId}`}>
+                        <Button> View status in admin panel </Button>
+                    </Link>
                 </AccountTabContentWrapper>
 
                 <AccountTabContentWrapper className="col-span-4 row-span-1 lg:col-span-1">
@@ -164,28 +180,17 @@ const AccountTab: React.FC<AccountTabProps> = ({ account }) => {
 
                 <AccountTabContentWrapper className="col-span-4 row-span-1 lg:col-span-2">
                     <p className="font-semibold"> AI Status Summary </p>
-
                     <section className="grid grid-cols-3">
                         <div className="col-span-1 flex flex-col items-center justify-center">
                             <h4 className="text-lg font-semibold">
-                                {" "}
-                                Evacuated!{" "}
+                                {aiStatusSummary.headline}
                             </h4>
                             <small className="text-neutral-500">
-                                Need more support!{" "}
+                                {aiStatusSummary.supportMessage}
                             </small>
-                            <Button> Open chat </Button>
                         </div>
                         <div className="col-span-2">
-                            <p>
-                                {" "}
-                                Lorem ipsum dolor, sit amet consectetur
-                                adipisicing elit. Laborum atque ut modi quasi
-                                similique nostrum, nulla alias quaerat
-                                repudiandae necessitatibus dolorum soluta
-                                deleniti eum ipsa ratione corrupti. Quos, unde
-                                aliquid.{" "}
-                            </p>
+                            <p>{aiStatusSummary.description}</p>
                         </div>
                     </section>
                 </AccountTabContentWrapper>

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.0.1",
     "@maptiler/geocoding-control": "^2.1.6",
     "@maptiler/sdk": "^3.3.0",

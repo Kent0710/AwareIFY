@@ -167,7 +167,7 @@ export default async function updateStatus(values: UpdateStatusType) {
 
     // Insert the new status record
     const { error: statusError } = await supabase.from("status").insert({
-        safety: values.safety,
+        is_safe: values.safety,
         flood_height: parseFloat(values.floodHeight!),
         rain_intensity: parseFloat(values.rainIntensity!),
         wind_speed: parseFloat(values.windSpeed!),

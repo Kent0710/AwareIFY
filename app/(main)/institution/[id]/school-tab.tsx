@@ -4,11 +4,10 @@ import Image from "next/image";
 import NULogo from "@/public/nulogo.webp";
 import { TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { getCurrentWeather } from "@/actions/getCurrentWeather";
 import { getHourlyWeatherForecast } from "@/actions/getHourlyWeatherForecast";
 import { getDailyWeatherForecast } from "@/actions/getDailyWeatherForecast";
-import { CloudRain, Cloudy, Droplet, Info, Loader2, Wind } from "lucide-react";
+import { CloudRain, Cloudy, Droplet,  Loader2, Wind } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { GoogleApiResponse } from "@/actions/getCurrentWeather";
 import { formatTo12HourTime } from "@/lib/utils";
@@ -20,6 +19,10 @@ import { AnnouncementCarousel } from "../../home/announcement-carousel";
 import { AnnouncementType } from "@/object-types";
 import { getInstitutionStatusSummary } from "@/actions/getInstitutionSummary";
 import getInstitutionById from "@/actions/getInstitutionById";
+import { generateAIStatusSummary } from "@/actions/generateAIStatusSummary";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+
 interface SchoolTabProps {
     institution: {
         id: string;
@@ -29,6 +32,12 @@ interface SchoolTabProps {
         latitude: number;
     };
     announcements: AnnouncementType[] | [];
+}
+
+interface AIStatusSummary {
+    headline: string;
+    supportMessage: string;
+    description: string;
 }
 
 const SchoolTab: React.FC<SchoolTabProps> = ({
@@ -58,59 +67,81 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
         transportation: string | null;
     } | null>(null);
     const [totalStakeholders, setTotalStakeholders] = useState<number>(0);
+    const [aiStatusSummary, setAIStatusSummary] =
+        useState<AIStatusSummary | null>(null);
 
     useEffect(() => {
-        // Fetch institution data and accounts
-        const fetchInstitutionData = async () => {
-            const result = await getInstitutionById(institutionId);
-            if (result.success && result.accounts) {
-                setTotalStakeholders(result.accounts.length);
-            }
+        // Fetch all data
+        const fetchData = async () => {
+            // Fetch institution data and accounts
+            const fetchInstitutionData = async () => {
+                const result = await getInstitutionById(institutionId);
+                if (result.success && result.accounts) {
+                    setTotalStakeholders(result.accounts.length);
+                }
+            };
+
+            // Fetch status summary
+            const fetchStatusSummary = async () => {
+                const result = await getInstitutionStatusSummary(institutionId);
+                if (result.success && result.statusCounts) {
+                    setStatusSummary({
+                        ...result.statusCounts,
+                        modality: result.modality,
+                        transportation: result.transportation,
+                    });
+                }
+            };
+
+            // Fetch weather data and AI summary
+            const fetchWeatherData = async () => {
+                if (
+                    !latitude ||
+                    !longitude ||
+                    isNaN(latitude) ||
+                    isNaN(longitude)
+                ) {
+                    return;
+                }
+
+                try {
+                    const [currentWeather, hourlyForecast, dailyForecast] =
+                        await Promise.all([
+                            getCurrentWeather(longitude, latitude),
+                            getHourlyWeatherForecast(longitude, latitude),
+                            getDailyWeatherForecast(longitude, latitude),
+                        ]);
+
+                    // Set weather states
+                    setInstitutionCurrentWeather(currentWeather);
+                    setInstitutionHourlyForecast(hourlyForecast);
+                    setInstitutionDailyForecast(dailyForecast);
+
+                    // Fetch AI summary with fresh weather data
+                    const aiSummary = await generateAIStatusSummary(
+                        currentWeather,
+                        hourlyForecast,
+                        dailyForecast
+                    );
+                    setAIStatusSummary(aiSummary);
+                } catch (error) {
+                    console.error(
+                        "Error fetching weather data or AI summary:",
+                        error
+                    );
+                }
+            };
+
+            // Run all fetches concurrently
+            await Promise.all([
+                fetchInstitutionData(),
+                fetchStatusSummary(),
+                fetchWeatherData(),
+            ]);
         };
 
-        // Fetch status summary
-        const fetchStatusSummary = async () => {
-            const result = await getInstitutionStatusSummary(institutionId);
-            if (result.success && result.statusCounts) {
-                setStatusSummary({
-                    ...result.statusCounts,
-                    modality: result.modality,
-                    transportation: result.transportation,
-                });
-            }
-        };
-
-        // Fetch weather data
-        const fetchWeatherData = async () => {
-            if (
-                !latitude ||
-                !longitude ||
-                isNaN(latitude) ||
-                isNaN(longitude)
-            ) {
-                return;
-            }
-
-            try {
-                const [currentWeather, hourlyForecast, dailyForecast] =
-                    await Promise.all([
-                        getCurrentWeather(longitude, latitude),
-                        getHourlyWeatherForecast(longitude, latitude),
-                        getDailyWeatherForecast(longitude, latitude),
-                    ]);
-
-                setInstitutionCurrentWeather(currentWeather);
-                setInstitutionHourlyForecast(hourlyForecast);
-                setInstitutionDailyForecast(dailyForecast);
-            } catch (error) {
-                console.error("Error fetching weather data:", error);
-            }
-        };
-
-        fetchInstitutionData();
-        fetchStatusSummary();
-        fetchWeatherData();
-    }, [institutionId, latitude, longitude]);
+        fetchData();
+    }, [institutionId, latitude, longitude]); // Only depend on props
 
     // Calculate derived metrics
     const unsafeProportion =
@@ -130,8 +161,7 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
             ? "High"
             : (institutionCurrentWeather?.precipitation.probability.percent ||
                   0) > 50 ||
-              (institutionCurrentWeather?.wind.speed.value || 0) >
-                  40 ||
+              (institutionCurrentWeather?.wind.speed.value || 0) > 40 ||
               (institutionCurrentWeather?.thunderstormProbability || 0) > 40
             ? "Moderate"
             : "Low";
@@ -139,26 +169,10 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
     const isHighVulnerability =
         unsafeProportion > 0.4 || evacuatedProportion > 0.3;
 
-    const statusData = statusSummary
-        ? [
-              { count: statusSummary.safe, text: "Safe" },
-              { count: statusSummary.unsafe, text: "Unsafe" },
-              { count: statusSummary.pending, text: "Pending" },
-              { count: statusSummary.ready, text: "Ready" },
-              { count: statusSummary.evacuated, text: "Evacuated" },
-          ]
-        : [
-              { count: 0, text: "Safe" },
-              { count: 0, text: "Unsafe" },
-              { count: 0, text: "Pending" },
-              { count: 0, text: "Ready" },
-              { count: 0, text: "Evacuated" },
-          ];
-
     if (
         !institutionCurrentWeather &&
         !institutionHourlyForecast &&
-        !statusSummary
+        !aiStatusSummary
     ) {
         return (
             <TabsContent
@@ -200,6 +214,9 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                             </small>
                         </div>
                     </section>
+                    <Link href={`/admin/${institutionId}`}>
+                        <Button className="mt-3"> View in admin panel </Button>
+                    </Link>
 
                     <ul className="flex flex-wrap gap-3 mt-3">
                         <li>
@@ -298,68 +315,27 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                             </Badge>
                         </li>
                     </ul>
-
-                    <Alert className="mt-3">
-                        <Info />
-                        <AlertTitle>Friendly alert</AlertTitle>
-                        <AlertDescription>
-                            {institutionCurrentWeather
-                                ? "Sleepy roads and heavy winds! Be careful."
-                                : "No current weather data available."}
-                        </AlertDescription>
-                    </Alert>
                 </SchoolTabContentWrapper>
 
                 <SchoolTabContentWrapper className="col-span-4 lg:col-span-2 h-full">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <p className="font-semibold">
-                                {institution_name} Status Summary
-                            </p>
-                            <small>
-                                {institutionCurrentWeather?.currentTime
-                                    ? formatTo12HourTime(
-                                          institutionCurrentWeather.currentTime
-                                      )
-                                    : "N/A"}
+                    <p className="font-semibold">AI Status Summary</p>
+                    <section className="grid grid-cols-3 mt-3">
+                        <div className="col-span-1 flex flex-col items-center justify-center">
+                            <h4 className="text-lg font-semibold">
+                                {aiStatusSummary?.headline || "Loading..."}
+                            </h4>
+                            <small className="text-neutral-500">
+                                {aiStatusSummary?.supportMessage ||
+                                    "Please wait"}
                             </small>
                         </div>
-                        <small className="font-semibold text-neutral-500">
-                            View breakdown
-                        </small>
-                    </div>
-
-                    <ul className="grid grid-cols-3 gap-3 grid-rows-2 mt-3">
-                        {statusData.map((status) => (
-                            <StatusCard
-                                count={status.count}
-                                text={status.text}
-                                key={status.text}
-                            />
-                        ))}
-                    </ul>
-
-                    <ul className="flex space-x-3 mt-3">
-                        {statusSummary?.modality && (
-                            <li>
-                                <Badge>
-                                    {statusSummary.modality === "online"
-                                        ? "Online modality"
-                                        : "Onsite modality"}
-                                </Badge>
-                            </li>
-                        )}
-                        {statusSummary?.transportation && (
-                            <li>
-                                <Badge>
-                                    Most{" "}
-                                    {statusSummary.transportation === "commute"
-                                        ? "commute"
-                                        : "own car"}
-                                </Badge>
-                            </li>
-                        )}
-                    </ul>
+                        <div className="col-span-2">
+                            <p>
+                                {aiStatusSummary?.description ||
+                                    "Awaiting AI analysis."}
+                            </p>
+                        </div>
+                    </section>
                 </SchoolTabContentWrapper>
             </div>
 
@@ -392,20 +368,6 @@ export const SchoolTabContentWrapper: React.FC<
     return (
         <div className={`border rounded-lg p-5 h-fit ${className}`}>
             {children}
-        </div>
-    );
-};
-
-interface StatusCardProps {
-    count: number;
-    text: string;
-}
-
-const StatusCard: React.FC<StatusCardProps> = ({ count, text }) => {
-    return (
-        <div className="rounded-xl border bg-card text-card-foreground shadow flex items-center space-x-3 p-3">
-            <p className="text-lg font-semibold">{count}</p>
-            <p className="font-semibold">{text}</p>
         </div>
     );
 };
