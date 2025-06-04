@@ -2,8 +2,6 @@
 
 import { GoHome } from "react-icons/go";
 import { IconType } from "react-icons/lib";
-import { PiStorefrontLight } from "react-icons/pi";
-import { PiShoppingCartSimple } from "react-icons/pi";
 import {  useMemo, useState } from "react";
 import { CgMenuRight } from "react-icons/cg";
 import Link from "next/link";
@@ -50,11 +48,6 @@ const BottomBar = () => {
                 icon: Lock,
                 text: "Admin",
                 href: "/admin",
-            },
-            {
-                icon: PiStorefrontLight,
-                text: "Shops",
-                href: "/shop",
             },
         ],
         []
