@@ -182,7 +182,7 @@ const SchoolTab: React.FC<SchoolTabProps> = ({
                 <AnnouncementCarousel announcements={announcements} />
             </SchoolTabContentWrapper>
 
-            <div className="col-span-4 grid grid-cols-1 lg:grid-rows-1 lg:grid-cols-4 gap-6 h-full bg-blue-500">
+            <div className="col-span-4 grid grid-cols-1 lg:grid-rows-1 lg:grid-cols-4 gap-6 h-full ">
                 <SchoolTabContentWrapper className="col-span-4 lg:col-span-1 h-full">
                     <p className="font-semibold">School</p>
                     <section className="flex items-center space-x-3">
